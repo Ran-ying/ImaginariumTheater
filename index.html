@@ -366,6 +366,7 @@
             let selectCharactersContent = document.createElement("ul");
             let selectCharactersNum = 0;
             let i = 0;
+            if(remainCharacters)
             while (i < remainCharacters.length) {
                 if ((limitElement.includes(getElement(remainCharacters[i].name)) || remainCharacters[i].name == "旅行者") && remainCharacters[i].level >= typeLevel) {
                     selectCharactersNum++;
