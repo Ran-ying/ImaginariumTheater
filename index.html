@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幻想真境剧诗</title>
+    <style>
+        /* 基本样式 */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .container > div {
+            flex: 1 1 100%;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        /* 桌面样式 */
+        @media (min-width: 768px) {
+            .container > div {
+                flex: 1;
+            }
+        }
+        
+        /* 输入框样式 */
+        input {
+            /* padding: 5px; */
+            width: calc(100px);
+            box-sizing: border-box;
+        }
+    </style>
+    <script>
+        let myCharacters;
+        let startCharacters;
+        let specialCharacters;
+
+
+        const nowStartCharacters = [{name: "阿蕾奇诺"}, {name: "托马"}, {name: "克洛琳德"}, {name: "久岐忍"}, {name: "流浪者"}, {name: "珐璐珊"}];
+        const nowSpecialCharacters = [{name: "白术"}, {name: "希格雯"}, {name: "艾尔海森"}, {name: "莱欧斯利"}]
+        const nowLimitElement = "火雷风"
+
+
+        const nextStartCharacters = [{name: "芙宁娜"}, {name: "芭芭拉"}, {name: "神里凌华"}, {name: "迪奥娜"}, {name: "魈"}, {name: "珐璐珊"}];
+        const nextSpecialCharacters = [{name: "纳西妲"}, {name: "阿贝多"}, {name: "娜维娅"}, {name: "阿蕾奇诺"}]
+        const nextLimitElement = "水冰风"
+
+        let type = 
+        {
+            "easy": {requireNum: 10, requireLevel: 60}, "normal": {requireNum: 14, requireLevel: 60}, "hard": {requireNum: 18, requireLevel: 70}
+        };
+        let limitElement = [];
+        let changeLimitElement = (str)=>{
+            document.querySelector("#limitElement").value = str;
+            limitElement = str.split('');
+        }
+        let loadNowConfig = ()=>{
+            
+            startCharacters = JSON.parse(JSON.stringify(nowStartCharacters));
+            localStorage.setItem("startCharacters", JSON.stringify(startCharacters))
+            loadStartCharacters();
+
+            specialCharacters = JSON.parse(JSON.stringify(nowSpecialCharacters));
+            localStorage.setItem("specialCharacters", JSON.stringify(specialCharacters))
+            loadSpecialCharacters();
+
+            localStorage.setItem("limitElement", nowLimitElement)
+            changeLimitElement(nowLimitElement);
+        }
+        let loadNextConfig = ()=>{
+
+            startCharacters = JSON.parse(JSON.stringify(nextStartCharacters));
+            localStorage.setItem("startCharacters", JSON.stringify(startCharacters))
+            loadStartCharacters();
+
+            specialCharacters = JSON.parse(JSON.stringify(nextSpecialCharacters));
+            localStorage.setItem("specialCharacters", JSON.stringify(specialCharacters))
+            loadSpecialCharacters();
+
+            localStorage.setItem("limitElement", nextLimitElement)
+            changeLimitElement(localStorage.getItem("limitElement"));
+        }
+        let charactersTable = {
+            "阿蕾奇诺":"火",
+            "林尼":"火",
+            "迪希雅":"火",
+            "宵宫":"火",
+            "胡桃":"火",
+            "可莉":"火",
+            "迪卢克":"火",
+            "嘉明":"火",
+            "夏沃蕾":"火",
+            "托马":"火",
+            "烟绯":"火",
+            "辛焱":"火",
+            "香菱":"火",
+            "安柏":"火",
+            "班尼特":"火",
+            "希格雯":"水",
+            "芙宁娜":"水",
+            "那维莱特":"水",
+            "旅行者":"水",
+            "妮露":"水",
+            "夜兰":"水",
+            "神里绫人":"水",
+            "珊瑚宫心海":"水",
+            "达达利亚":"水",
+            "莫娜":"水",
+            "坎蒂丝":"水",
+            "芭芭拉":"水",
+            "行秋":"水",
+            "闲云":"风",
+            "流浪者":"风",
+            "枫原万叶":"风",
+            "角色-魈":"风",
+            "温迪":"风",
+            "角色-琴":"风",
+            "旅行者":"风",
+            "琳妮特":"风",
+            "珐露珊":"风",
+            "鹿野院平藏":"风",
+            "早柚":"风",
+            "砂糖":"风",
+            "克洛琳德":"雷",
+            "赛诺":"雷",
+            "八重神子":"雷",
+            "雷电将军":"雷",
+            "旅行者":"雷",
+            "刻晴":"雷",
+            "赛索斯":"雷",
+            "多莉":"雷",
+            "久岐忍":"雷",
+            "九条裟罗":"雷",
+            "北斗":"雷",
+            "雷泽":"雷",
+            "菲谢尔":"雷",
+            "丽莎":"雷",
+            "白术":"草",
+            "艾尔海森":"草",
+            "纳西妲":"草",
+            "提纳里":"草",
+            "旅行者":"草",
+            "绮良良":"草",
+            "卡维":"草",
+            "瑶瑶":"草",
+            "柯莱":"草",
+            "莱欧斯利":"冰",
+            "申鹤":"冰",
+            "埃洛伊":"冰",
+            "神里绫华":"冰",
+            "优菈":"冰",
+            "甘雨":"冰",
+            "七七":"冰",
+            "夏洛蒂":"冰",
+            "菲米尼":"冰",
+            "米卡":"冰",
+            "莱依拉":"冰",
+            "罗莎莉亚":"冰",
+            "迪奥娜":"冰",
+            "重云":"冰",
+            "凯亚":"冰",
+            "千织":"岩",
+            "娜维娅":"岩",
+            "荒泷一斗":"岩",
+            "阿贝多":"岩",
+            "钟离":"岩",
+            "旅行者":"岩",
+            "云堇":"岩",
+            "五郎":"岩",
+            "凝光":"岩",
+            "诺艾尔":"岩",
+        }
+        window.onload = ()=>{
+            myCharacters = JSON.parse(localStorage.getItem("myCharacters"))
+            loadMyCharacters();
+            startCharacters = JSON.parse(localStorage.getItem("startCharacters"))
+            loadStartCharacters();
+            specialCharacters = JSON.parse(localStorage.getItem("specialCharacters"))
+            loadSpecialCharacters();
+            loadType();
+            
+            changeLimitElement(localStorage.getItem("limitElement"));
+        }
+        let loadMyCharacters = ()=>{
+            document.querySelector("#myCharacters").innerHTML = ""
+            let c = document.createElement("li");
+            c.innerHTML = `<input id="myCharacterName" placeHolder="名称">: <input id="myCharacterLevel" placeHolder="等级"><button onclick="addMyCharacter()">添加</button>`
+            document.querySelector("#myCharacters").appendChild(c)
+            for(let i in myCharacters){
+                let c = document.createElement("li");
+                c.innerHTML = `<button onclick="deleteMyCharacter('${myCharacters[i]["name"]}')">删除</button> ${myCharacters[i]["name"]}: ${myCharacters[i]["level"]}`
+                document.querySelector("#myCharacters").appendChild(c)
+            }
+        }
+        let addMyCharacter = ()=>{
+            if(!myCharacters) myCharacters = [];
+            let name = document.querySelector("#myCharacterName").value;
+            let level = document.querySelector("#myCharacterLevel").value;
+            for(let i in myCharacters){
+                if (myCharacters[i]["name"] == name) {
+                    myCharacters[i]["level"] = level;
+                    localStorage.setItem("myCharacters", JSON.stringify(myCharacters))
+                    loadMyCharacters();
+                    return;
+                }
+            }
+            myCharacters.push({name: name, level: level})
+            localStorage.setItem("myCharacters", JSON.stringify(myCharacters))
+            loadMyCharacters();
+        }
+        let deleteMyCharacter = (name)=>{
+            for(let i in myCharacters){
+                if (myCharacters[i]["name"] == name) {
+                    myCharacters.splice(i, 1);
+                    break;
+                }
+            }
+            localStorage.setItem("myCharacters", JSON.stringify(myCharacters));
+            loadMyCharacters();
+        }
+        let loadStartCharacters = ()=>{
+            document.querySelector("#startCharacters").innerHTML = ""
+            let c = document.createElement("li");
+            c.innerHTML = `<input id="startCharacterName" placeHolder="名称"><button onclick="addStartCharacter()">添加</button>`
+            document.querySelector("#startCharacters").appendChild(c)
+            for(let i in startCharacters){
+                let c = document.createElement("li");
+                c.innerHTML = `<button onclick="deleteStartCharacter('${startCharacters[i]["name"]}')">删除</button> ${startCharacters[i]["name"]}`
+                document.querySelector("#startCharacters").appendChild(c)
+            }
+        }
+        let addStartCharacter = ()=>{
+            if(!startCharacters) startCharacters = [];
+            let name = document.querySelector("#startCharacterName").value;
+            for(let i in startCharacters){
+                if (startCharacters[i]["name"] == name) {
+                    startCharacters[i]["level"] = level;
+                    localStorage.setItem("startCharacters", JSON.stringify(startCharacters))
+                    loadstartCharacters();
+                    return;
+                }
+            }
+            startCharacters.push({name: name})
+            localStorage.setItem("startCharacters", JSON.stringify(startCharacters))
+            loadStartCharacters();
+        }
+        let deleteStartCharacter = (name)=>{
+            for(let i in startCharacters){
+                if (startCharacters[i]["name"] == name) {
+                    startCharacters.splice(i, 1);
+                    break;
+                }
+            }
+            localStorage.setItem("startCharacters", JSON.stringify(startCharacters));
+            loadStartCharacters();
+        }
+        let loadSpecialCharacters = () => {
+            document.querySelector("#specialCharacters").innerHTML = "";
+            let c = document.createElement("li");
+            c.innerHTML = `<input id="specialCharacterName" placeHolder="名称"><button onclick="addSpecialCharacter()">添加</button>`;
+            document.querySelector("#specialCharacters").appendChild(c);
+            for (let i in specialCharacters) {
+                let c = document.createElement("li");
+                c.innerHTML = `<button onclick="deleteSpecialCharacter('${specialCharacters[i]["name"]}')">删除</button> ${specialCharacters[i]["name"]}`;
+                document.querySelector("#specialCharacters").appendChild(c);
+            }
+        }
+
+        let addSpecialCharacter = () => {
+            if (!specialCharacters) specialCharacters = [];
+            let name = document.querySelector("#specialCharacterName").value;
+            for (let i in specialCharacters) {
+                if (specialCharacters[i]["name"] == name) {
+                    specialCharacters[i]["level"] = level;
+                    localStorage.setItem("specialCharacters", JSON.stringify(specialCharacters));
+                    loadSpecialCharacters();
+                    return;
+                }
+            }
+            specialCharacters.push({name: name});
+            localStorage.setItem("specialCharacters", JSON.stringify(specialCharacters));
+            loadSpecialCharacters();
+        }
+
+        let deleteSpecialCharacter = (name) => {
+            for (let i in specialCharacters) {
+                if (specialCharacters[i]["name"] == name) {
+                    specialCharacters.splice(i, 1);
+                    break;
+                }
+            }
+            localStorage.setItem("specialCharacters", JSON.stringify(specialCharacters));
+            loadSpecialCharacters();
+        }
+
+        let loadType = ()=>{
+            document.querySelector("#type").innerHTML = ""
+            for(let name in type){
+                let c = document.createElement("li");
+                c.innerHTML = `<button onclick="selectType('${name}')">${name}</button> 所需人数：${type[name]["requireNum"]}, 所需等级：${type[name]["requireLevel"]}`
+                document.querySelector("#type").appendChild(c)
+            }
+        }
+        let getElement = (characterName)=>{
+            return charactersTable[characterName];
+        }
+        let selectType = (typeName)=>{
+            document.querySelector("#selectList").innerHTML = '';
+            let typeLevel = type[typeName]["requireLevel"];
+            let typeNum = type[typeName]["requireNum"];
+            let remainCharacters = JSON.parse(localStorage.getItem("myCharacters"));
+            //开幕角色
+            let startCharactersTitle = document.createElement("li");
+            let startCharactersContent = document.createElement("ul");
+            let startCharactersNum = 0;
+
+            for(let startCharacter in startCharacters){
+                startCharactersNum++;
+                let nc = document.createElement("li");
+                nc.innerHTML = `系统给出的 ${startCharacters[startCharacter].name}`
+                for(let remainCharacter in remainCharacters){
+                    if(startCharacters[startCharacter].name == remainCharacters[remainCharacter].name){
+                        if(remainCharacters[remainCharacter].level >= typeLevel){
+                            nc.innerHTML += ` 或者您自己的 ${remainCharacters[remainCharacter].name}（${remainCharacters[remainCharacter].level}级）`
+                        }
+                        remainCharacters.splice(remainCharacter, 1);
+                        break;
+                    }
+                }
+                startCharactersContent.appendChild(nc);
+            }
+            startCharactersTitle.innerHTML = `开幕角色（${startCharactersNum} 人）`
+            document.querySelector("#selectList").appendChild(startCharactersTitle)
+            document.querySelector("#selectList").appendChild(startCharactersContent)
+
+            //特邀角色
+            let specialCharactersTitle = document.createElement("li");
+            let specialCharactersContent = document.createElement("ul");
+            let specialCharactersNum = 0;
+            for(let specialCharacter in specialCharacters){
+                for(let remainCharacter in remainCharacters){
+                    if(specialCharacters[specialCharacter].name == remainCharacters[remainCharacter].name &&remainCharacters[remainCharacter].level >= typeLevel){
+                        specialCharactersNum++;
+                        let nc = document.createElement("li");
+                        nc.innerHTML = `${remainCharacters[remainCharacter].name}（${remainCharacters[remainCharacter].level}级）`
+                        remainCharacters.splice(remainCharacter, 1);
+                        specialCharactersContent.appendChild(nc);
+                        break;
+                    }
+                }
+            }
+            specialCharactersTitle.innerHTML = `特邀角色（${specialCharactersNum} 人）`
+            document.querySelector("#selectList").appendChild(specialCharactersTitle)
+            document.querySelector("#selectList").appendChild(specialCharactersContent)
+
+
+
+            
+            //可选角色
+            let selectCharactersTitle = document.createElement("li");
+            let selectCharactersContent = document.createElement("ul");
+            let selectCharactersNum = 0;
+            let i = 0;
+            while (i < remainCharacters.length) {
+                if ((limitElement.includes(getElement(remainCharacters[i].name)) || remainCharacters[i].name == "旅行者") && remainCharacters[i].level >= typeLevel) {
+                    selectCharactersNum++;
+                    let nc = document.createElement("li");
+                    nc.innerHTML = `${remainCharacters[i].name}（${remainCharacters[i].level}级）`;
+                    remainCharacters.splice(i, 1); // 删除元素
+                    selectCharactersContent.appendChild(nc);
+                    // 不增加 i, 因为数组长度减小
+                }
+                else {
+                    i++; // 仅在不删除元素时增加 i
+                }
+            }
+
+            document.querySelector("#resultList").innerHTML = '';
+            selectCharactersTitle.innerHTML = `可选角色（${selectCharactersNum} 人）`
+            document.querySelector("#selectList").appendChild(selectCharactersTitle)
+            document.querySelector("#selectList").appendChild(selectCharactersContent)
+
+            let sum = startCharactersNum + specialCharactersNum + selectCharactersNum
+            let rs1 = document.createElement("li");
+            document.querySelector("#resultList").appendChild(rs1);
+            let rs2 = document.createElement("ul");
+            document.querySelector("#resultList").appendChild(rs2);
+            if(sum+1 >= typeNum){
+                rs1.innerHTML = `您的待选角色共有 ${sum} 位`
+                if(sum >= typeNum){
+                    rs1.innerHTML += `，可以参加 ${typeName} 的幻想真境剧诗`
+                }
+                else{
+                    rs1.innerHTML += `，邀请一名好友的助演角色后，可以参加 ${typeName} 的幻想真境剧诗`
+                }
+            }
+            else{
+                rs1.innerHTML = `您的待选角色共有 ${sum} 位，不可以参加 ${typeName} 的幻想真境剧诗，尝试培养以下角色：`
+                for(let i in remainCharacters){
+                    if((limitElement.includes(getElement(remainCharacters[i].name)) || remainCharacters[i].name == "旅行者") && remainCharacters[i].level < typeLevel){
+                        let pain = document.createElement("li");
+                        pain.innerHTML = `${remainCharacters[i].name}（${remainCharacters[i].level} 级）`
+                        rs2.appendChild(pain);
+                    }
+                }
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <h1>幻想真境剧诗</h1>
+    <div class="container">
+        <div>
+            <h2>你的角色</h2>
+            <ul id="myCharacters"></ul>
+        </div>
+        <div>
+            <button onclick="loadNowConfig()">加载当期配置</button>
+            <button onclick="loadNextConfig()">加载下期配置</button>
+            <h2>开幕角色</h2>
+            <ul id="startCharacters"></ul>
+            <h2>特邀角色</h2>
+            <ul id="specialCharacters"></ul>
+            <h2>元素限制</h2>
+            <input id="limitElement" onchange="changeLimitElement(this.value)">
+        </div>
+        <div>
+            <h2>选择难度</h2>
+            <ul id="type"></ul>
+            <h2>待选角色</h2>
+            <ul id="selectList"></ul>
+            <h2>总结</h2>
+            <ul id="resultList"></ul>
+        </div>
+    </div>
+</body>
+</html>
