@@ -402,12 +402,28 @@
             }
             else{
                 rs1.innerHTML = `您的待选角色共有 ${sum} 位，不可以参加 ${typeName} 的幻想真境剧诗，尝试培养以下角色：`
+                let painNum = 0;
                 for(let i in remainCharacters){
                     if((limitElement.includes(getElement(remainCharacters[i].name)) || remainCharacters[i].name == "旅行者") && remainCharacters[i].level < typeLevel){
                         let pain = document.createElement("li");
                         pain.innerHTML = `${remainCharacters[i].name}（${remainCharacters[i].level} 级）`
                         rs2.appendChild(pain);
+                        painNum++;
                     }
+                }
+                let rs3 = document.createElement("li");
+                document.querySelector("#resultList").appendChild(rs3);
+                if(sum + painNum + 1 >= typeNum){
+                    rs3.innerHTML = `您的待选角色共有 ${sum} 位`
+                    if(sum + painNum >= typeNum){
+                        rs1.innerHTML += `培养 ${typeNum - sum} 名的待培养角色，可以参加 ${typeName} 的幻想真境剧诗`
+                    }
+                    else{
+                        rs1.innerHTML += `培养全部的待培养角色，并邀请一名好友的助演角色后，可以参加 ${typeName} 的幻想真境剧诗`
+                    }
+                }
+                else{
+                    rs3.innerHTML = `您的待选角色加上待培养角色再加好友助演角色后共有 ${sum} 位，仍然无法参加 ${typeName} 难度的幻想真境剧诗`
                 }
             }
         }
